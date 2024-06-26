@@ -36,18 +36,18 @@ db.serialize(() => {
       customer_id INTEGER,
       company_name TEXT,
       billing_address TEXT,
-      billing_pincode INTEGER MUST BE 6 DIGITS,
+      billing_pincode INTEGER CHECK(LENGTH(billing_pincode) = 6),
       billing_state TEXT,
       billing_country TEXT,
       dispatch_address TEXT,
-      dispatch_pincode INTEGER MUST BE 6 DIGITS,
+      dispatch_pincode INTEGER CHECK(LENGTH(dispatch_pincode) = 6),
       dispatch_state TEXT,
       dispatch_country TEXT,
       contact_person TEXT,
-      mobile_number TEXT MUST BE 10 DIGITS,
+      mobile_number TEXT CHECK(LENGTH(mobile_number) = 10),
       email TEXT,
       whatsapp_no TEXT,
-      gst_no TEXT,
+      gst_no TEXT
     )
   `);
   db.run(`
@@ -70,13 +70,13 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS employee (
       serial_no INTEGER PRIMARY KEY AUTOINCREMENT,
       date TEXT,
-      employee_id INTEGER ,
+      employee_id INTEGER,
       name TEXT,
       address TEXT,
-      pincode INTEGER MUST BE 6 DIGITS ,
+      pincode INTEGER CHECK(LENGTH(pincode) = 6),
       state TEXT,
       country TEXT,
-      mobile_number TEXT MUST BE 10 DIGITS,
+      mobile_number TEXT CHECK(LENGTH(mobile_number) = 10),
       email TEXT,
       department TEXT,
       id_proof TEXT,
@@ -92,7 +92,7 @@ db.serialize(() => {
       product_code TEXT,
       product_description TEXT,
       type_of_product TEXT,
-      walt TEXT,
+      watt TEXT,
       cct TEXT,
       body_color TEXT,
       reflector_color TEXT,
@@ -145,9 +145,9 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS purchase (
       serial_no INTEGER PRIMARY KEY AUTOINCREMENT,
       date TEXT,
-      Indent_no INTEGER,
+      indent_no INTEGER,
       purchase_order_no INTEGER,
-      vender_details TEXT,
+      vendor_details TEXT,
       delivery_date TEXT,
       payment_terms TEXT,
       store TEXT,
@@ -162,7 +162,7 @@ db.serialize(() => {
       total_price INTEGER,
       terms_and_conditions TEXT,
       comment TEXT,
-      attachments TEXT,
+      attachments TEXT
     )
   `);
   db.run(`
@@ -180,10 +180,9 @@ db.serialize(() => {
       pending_quantity INTEGER,
       status TEXT,
       brand TEXT,
-      printing TEXT,
+      printing TEXT
     )
   `);
-
   db.run(`
     CREATE TABLE IF NOT EXISTS packaging (
       packaging_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -191,42 +190,41 @@ db.serialize(() => {
       printing TEXT,
       labeling_on_box TEXT,
       dispatch_label TEXT
-  )
+    )
   `);
   db.run(`
-  CREATE TABLE IF NOT EXISTS billing (
-    billing_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    invoice_generation TEXT,
-    payment TEXT,
-    expenses TEXT,
-    price_prefix TEXT,
-    discount_system TEXT,
-    client_update BOOLEAN
-  )
+    CREATE TABLE IF NOT EXISTS billing (
+      billing_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      invoice_generation TEXT,
+      payment TEXT,
+      expenses TEXT,
+      price_prefix TEXT,
+      discount_system TEXT,
+      client_update BOOLEAN
+    )
   `);
   db.run(`
-   CREATE TABLE IF NOT EXISTS dispatch (
-     dispatch_id INTEGER PRIMARY KEY AUTOINCREMENT,
-     dispatch_discussion TEXT,
-     transport_copy TEXT,
-     transport_option_wise TEXT,
-     client_update BOOLEAN
-  )
+    CREATE TABLE IF NOT EXISTS dispatch (
+      dispatch_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      dispatch_discussion TEXT,
+      transport_copy TEXT,
+      transport_option_wise TEXT,
+      client_update BOOLEAN
+    )
   `);
-
   db.run(`
-  CREATE TABLE IF NOT EXISTS replacement (
-    replacement_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    check_warranty TEXT,
-    product_wise_replace TEXT,
-    fault_analysis TEXT,
-    client_wise_replacement TEXT,
-    time_wise_replacement TEXT,
-    client_receipt TEXT,
-    amount_credit_to_client TEXT,
-    check_product TEXT,
-    client_update BOOLEAN
-  )
+    CREATE TABLE IF NOT EXISTS replacement (
+      replacement_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      check_warranty TEXT,
+      product_wise_replace TEXT,
+      fault_analysis TEXT,
+      client_wise_replacement TEXT,
+      time_wise_replacement TEXT,
+      client_receipt TEXT,
+      amount_credit_to_client TEXT,
+      check_product TEXT,
+      client_update BOOLEAN
+    )
   `);
 });
 
