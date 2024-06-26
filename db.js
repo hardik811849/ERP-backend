@@ -185,15 +185,14 @@ db.serialize(() => {
   `);
 
   db.run(`
-  CREATE TABLE IF NOT EXISTS packaging (
-    packaging_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    white_labeling TEXT,
-    printing TEXT,
-    labeling_on_box TEXT,
-    dispatch_label TEXT
+    CREATE TABLE IF NOT EXISTS packaging (
+      packaging_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      white_labeling TEXT,
+      printing TEXT,
+      labeling_on_box TEXT,
+      dispatch_label TEXT
   )
   `);
-
   db.run(`
   CREATE TABLE IF NOT EXISTS billing (
     billing_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -204,15 +203,14 @@ db.serialize(() => {
     discount_system TEXT,
     client_update BOOLEAN
   )
-    `);
-
+  `);
   db.run(`
-  CREATE TABLE IF NOT EXISTS dispatch (
-    dispatch_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    dispatch_discussion TEXT,
-    transport_copy TEXT,
-    transport_option_wise TEXT,
-    client_update BOOLEAN
+   CREATE TABLE IF NOT EXISTS dispatch (
+     dispatch_id INTEGER PRIMARY KEY AUTOINCREMENT,
+     dispatch_discussion TEXT,
+     transport_copy TEXT,
+     transport_option_wise TEXT,
+     client_update BOOLEAN
   )
   `);
 
