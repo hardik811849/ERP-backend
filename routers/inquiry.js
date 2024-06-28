@@ -1,65 +1,73 @@
 const express = require("express");
 const { fail, success } = require("../utils/constants");
-const { db } = require("../db");
+const { InquiryModel } = require("../models/inquiry.model");
 const inquiryRouter = express.Router();
 
 // create inquiry
-inquiryRouter.post("/create", (req, res) => {
+inquiryRouter.post("/create", async (req, res) => {
   const {
-    customer_name,
-    address,
-    contact_no,
-    inquiry_of_products,
-    quality,
-    medium_of_inquiry,
-    assign_to,
-    status,
+    serial_no,
+    date,
+    inquiry_no,
+    client_name,
+    client_details,
+    payment_terms,
+    validity_of_inquiry,
+    delivery_time,
+    inquiry_date,
+    item_id,
+    product,
+    item_description,
+    hsn_code,
+    quantity,
+    unit,
+    unit_price,
+    discount,
+    tax,
+    total_price,
+    total_price_with_tax,
+    comments,
   } = req.body;
-  if (
-    !customer_name ||
-    !address ||
-    !contact_no ||
-    !inquiry_of_products ||
-    !quality ||
-    !medium_of_inquiry ||
-    !assign_to ||
-    !status
-  ) {
-    return fail(res, "all the fields are required");
-  }
 
-  db.run(
-    `INSERT INTO inquiry (customer_name, address, contact_no, inquiry_of_products, quality, medium_of_inquiry, assign_to, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      customer_name,
-      address,
-      contact_no,
-      inquiry_of_products,
-      quality,
-      medium_of_inquiry,
-      assign_to,
-      status,
-    ],
-    (err) => {
-      if (err) {
-        return fail(res, err.message, 500);
-      }
-      success(res, "Inquiry created successfully!");
-    }
-  );
+  try {
+    const newInquiry = new InquiryModel({
+      serial_no,
+      date,
+      inquiry_no,
+      client_name,
+      client_details,
+      payment_terms,
+      validity_of_inquiry,
+      delivery_time,
+      inquiry_date,
+      item_id,
+      product,
+      item_description,
+      hsn_code,
+      quantity,
+      unit,
+      unit_price,
+      discount,
+      tax,
+      total_price,
+      total_price_with_tax,
+      comments,
+    });
+    await newInquiry.save();
+    // console.log("Inquiry created successfully");
+    success(res, "Inquiry created successfully!");
+  } catch (err) {
+    console.error("Error inserting inquiry:", err);
+    fail(res, err.message, 500);
+  }
 });
 
-// get all inquiry
-inquiryRouter.get("/all", (req, res) => {
+inquiryRouter.get("/", async (req, res) => {
   try {
-    db.all("SELECT * FROM inquiry", (err, rows) => {
-      if (err) {
-        return fail(res, err.message, 500);
-      }
-      success(res, "all inquiry fetched", rows);
-    });
-  } catch (error) {
-    return fail(res, error.message);
+    const inquiries = await InquiryModel.find({});
+    success(res, "All inquiries fetched", inquiries);
+  } catch (err) {
+    fail(res, err.message, 500);
   }
 });
 
@@ -78,65 +86,86 @@ inquiryRouter.get("/:id", (req, res) => {
   }
 });
 // update inquiry
-inquiryRouter.patch("/update/:id", (req, res) => {
+inquiryRouter.patch("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      customer_name,
-      address,
-      contact_no,
-      inquiry_of_products,
-      quality,
-      medium_of_inquiry,
-      assign_to,
-      status,
+      serial_no,
+      date,
+      inquiry_no,
+      client_name,
+      client_details,
+      payment_terms,
+      validity_of_inquiry,
+      delivery_time,
+      inquiry_date,
+      item_id,
+      product,
+      item_description,
+      hsn_code,
+      quantity,
+      unit,
+      unit_price,
+      discount,
+      tax,
+      total_price,
+      total_price_with_tax,
+      comments,
     } = req.body;
-    if (
-      !customer_name ||
-      !address ||
-      !contact_no ||
-      !inquiry_of_products ||
-      !quality ||
-      !medium_of_inquiry ||
-      !assign_to ||
-      !status
-    ) {
-      return fail(res, "all the fields are required");
-    }
-    db.run(
-      `UPDATE inquiry SET customer_name = ?, address = ?, contact_no = ?, inquiry_of_products = ?, quality = ?, medium_of_inquiry = ?, assign_to = ?, status = ? WHERE inquiry_id = ?`,
-      [
-        customer_name,
-        address,
-        contact_no,
-        inquiry_of_products,
-        +quality,
-        medium_of_inquiry,
-        assign_to,
-        status,
-        id,
-      ],
-      (err) => {
-        if (err) {
-          return fail(res, err.message, 500);
-        }
-        success(res, "Inquiry updated successfully!");
-      }
+
+    const updatedInquiry = await InquiryModel.findOneAndUpdate(
+      { _id: id },
+      {
+        serial_no,
+        date,
+        inquiry_no,
+        client_name,
+        client_details,
+        payment_terms,
+        validity_of_inquiry,
+        delivery_time,
+        inquiry_date,
+        item_id,
+        product,
+        item_description,
+        hsn_code,
+        quantity,
+        unit,
+        unit_price,
+        discount,
+        tax,
+        total_price,
+        total_price_with_tax,
+        comments,
+      },
+      { new: true }
     );
-  } catch (error) {
-    return fail(res, error.message);
+
+    if (!updatedInquiry) {
+      return fail(res, "Inquiry not found", 404);
+    }
+
+    success(res, "Inquiry updated successfully", updatedInquiry);
+  } catch (err) {
+    fail(res, err.message, 500);
   }
 });
 
 // delete inquiry
-inquiryRouter.delete("/delete/:id", (req, res) => {
-  const { id } = req.params;
-  db.run(`DELETE FROM inquiry WHERE inquiry_id = ?`, [id], (err) => {
-    if (err) {
-      return fail(res, err.message, 500);
+inquiryRouter.delete("/delete/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedInquiry = await InquiryModel.findByIdAndDelete({ _id: id });
+
+    if (!deletedInquiry) {
+      return fail(res, "Inquiry not found", 404);
     }
-    success(res, "Inquiry deleted successfully!");
-  });
+
+    success(res, "Inquiry deleted successfully");
+  } catch (err) {
+    fail(res, err.message, 500);
+  }
 });
 
 module.exports = {

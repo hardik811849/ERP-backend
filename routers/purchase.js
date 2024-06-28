@@ -1,159 +1,73 @@
 const express = require("express");
 const { fail, success } = require("../utils/constants");
-const { db } = require("../db");
+const { PurchaseModel } = require("../models/purchase.model");
 const purchaseRouter = express.Router();
 
-purchaseRouter.post("/create", (req, res) => {
+// Create a purchase
+purchaseRouter.post("/create", async (req, res) => {
   try {
-    const {
-      vender_select,
-      vender_guide,
-      release_of_purchase_order,
-      vender_receipt,
-      delivery_time_date,
-      payment,
-      payment_mode,
-      quality_check,
-      quantity_check,
-      return_rejected_raw_product,
-    } = req.body;
+    const newPurchase = new PurchaseModel(req.body);
 
-    if (
-      !vender_select ||
-      !vender_guide ||
-      !release_of_purchase_order ||
-      !vender_receipt ||
-      !delivery_time_date ||
-      !payment ||
-      !payment_mode ||
-      !quality_check ||
-      !quantity_check ||
-      !return_rejected_raw_product
-    ) {
-      return fail(res, "all the fields are required");
+    await newPurchase.save();
+
+    success(res, "Purchase created successfully!", newPurchase);
+  } catch (error) {
+    fail(res, error.message);
+  }
+});
+
+// Get all purchases
+purchaseRouter.get("/", async (req, res) => {
+  try {
+    const allPurchases = await PurchaseModel.find();
+    success(res, "All purchases fetched", allPurchases);
+  } catch (error) {
+    fail(res, error.message);
+  }
+});
+
+// Get a purchase by ID
+purchaseRouter.get("/:id", async (req, res) => {
+  try {
+    const purchase = await PurchaseModel.findById(req.params.id);
+    if (!purchase) {
+      return fail(res, "Purchase not found", 404);
     }
+    success(res, "Purchase fetched by id", purchase);
+  } catch (error) {
+    fail(res, error.message);
+  }
+});
 
-    db.run(
-      `INSERT INTO purchase (vender_select, vender_guide, release_of_purchase_order, vender_receipt, delivery_time_date, payment, payment_mode, quality_check, quantity_check, return_rejected_raw_product) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        vender_select,
-        vender_guide,
-        release_of_purchase_order,
-        vender_receipt,
-        delivery_time_date,
-        payment,
-        payment_mode,
-        quality_check,
-        quantity_check,
-        return_rejected_raw_product,
-      ],
-      (err) => {
-        if (err) {
-          return fail(res, err.message, 500);
-        }
-        success(res, "Purchase created successfully!");
-      }
+// Update a purchase by ID
+purchaseRouter.patch("/update/:id", async (req, res) => {
+  try {
+    const updatedPurchase = await PurchaseModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
     );
-  } catch (error) {
-    return fail(res, error.message);
-  }
-});
-
-purchaseRouter.get("/all", (req, res) => {
-  try {
-    db.all("SELECT * FROM purchase", (err, rows) => {
-      if (err) {
-        return fail(res, err.message, 500);
-      }
-      success(res, "all purchases fetched", rows);
-    });
-  } catch (error) {
-    return fail(res, error.message);
-  }
-});
-
-purchaseRouter.get("/:id", (req, res) => {
-  try {
-    let { id } = req.params;
-    db.get("SELECT * FROM purchase WHERE purchase_id = ?", [id], (err, row) => {
-      if (err) {
-        return fail(res, err.message, 500);
-      }
-      success(res, "Purchase fetched by id", row);
-    });
-  } catch (error) {
-    return fail(res, error.message);
-  }
-});
-
-purchaseRouter.patch("/update/:id", (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      vender_select,
-      vender_guide,
-      release_of_purchase_order,
-      vender_receipt,
-      delivery_time_date,
-      payment,
-      payment_mode,
-      quality_check,
-      quantity_check,
-      return_rejected_raw_product,
-    } = req.body;
-    if (
-      !vender_select ||
-      !vender_guide ||
-      !release_of_purchase_order ||
-      !vender_receipt ||
-      !delivery_time_date ||
-      !payment ||
-      !payment_mode ||
-      !quality_check ||
-      !quantity_check ||
-      !return_rejected_raw_product
-    ) {
-      return fail(res, "all the fields are required");
+    if (!updatedPurchase) {
+      return fail(res, "Purchase not found", 404);
     }
-
-    db.run(
-      `UPDATE purchase SET  vender_select = ?, vender_guide = ?, release_of_purchase_order = ?, vender_receipt = ?, delivery_time_date = ?, payment = ?, payment_mode = ?, quality_check = ?, quantity_check = ?, return_rejected_raw_product = ? WHERE purchase_id = ?`,
-      [
-        vender_select,
-        vender_guide,
-        release_of_purchase_order,
-        vender_receipt,
-        delivery_time_date,
-        payment,
-        payment_mode,
-        quality_check,
-        quantity_check,
-        return_rejected_raw_product,
-        id,
-      ]
-    );
-    db.get("SELECT * FROM purchase WHERE purchase_id = ?", [id], (err, row) => {
-      if (err) {
-        return fail(res, err.message, 500);
-      }
-      success(res, "Purchase updated successfully!", row);
-    });
+    success(res, "Purchase updated successfully!", updatedPurchase);
   } catch (error) {
-    return fail(res, error.message);
+    fail(res, error.message);
   }
 });
 
-purchaseRouter.delete("/delete/:id", (req, res) => {
+// Delete a purchase by ID
+purchaseRouter.delete("/delete/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    db.run("DELETE FROM purchase WHERE purchase_id = ?", [id], (err) => {
-      if (err) {
-        return fail(res, err.message, 500);
-      }
-      success(res, "Purchase deleted successfully!");
-    });
+    const deletedPurchase = await PurchaseModel.findByIdAndDelete(
+      req.params.id
+    );
+    if (!deletedPurchase) {
+      return fail(res, "Purchase not found", 404);
+    }
+    success(res, "Purchase deleted successfully!");
   } catch (error) {
-    return fail(res, error.message);
+    fail(res, error.message);
   }
 });
 
